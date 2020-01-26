@@ -25,4 +25,13 @@ app.get('/deliverers', (req, res) => {
     res.send(deliverers);
 })
 
+// app.get('/merchants', (req, res) => {
+//     const merchants = [];
+//     merchants.push({
+//         id: 4,
+//         lastName: ''
+//     })
+//     res.send(merchants)
+// })
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
