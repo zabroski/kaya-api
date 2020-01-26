@@ -1,5 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
-
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm";
+import {Delivery} from './Delivery'
 @Entity()
 export class Merchant {
 
@@ -14,5 +14,8 @@ export class Merchant {
 
     // @Column()
     // phoneNumber: number;
+
+    @OneToMany(type => Delivery, delivery => delivery.merchant)
+    deliveries: Delivery[];
 
 }

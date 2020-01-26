@@ -5,6 +5,7 @@ import express = require('express');
 import { Deliverer } from "./entity/Deliverer";
 import { Merchant } from "./entity/Merchant";
 import { Delivery } from "./entity/Delivery";
+import { Address } from "./entity/Address";
 
 const app = express()
 const port = 3000
@@ -60,7 +61,8 @@ app.get('/deliverers', (req, res) => {
 
 app.post('/create-delivery/:delivererId', (req, res) => {
     createConnection().then(async (connection) => {
-        const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId);
+        const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
+        const merchant = await getRepository(Merchant).findOne(1);
 
         if(deliverer === undefined) {
             await connection.close();
@@ -68,6 +70,33 @@ app.post('/create-delivery/:delivererId', (req, res) => {
         } else {
             const delivery = new Delivery();
             delivery.deliverer = deliverer;
+            delivery.merchant = merchant;
+
+            const pickUpAddress = new Address();
+            pickUpAddress.type = "pickup";
+            pickUpAddress.street = "235 w 116th";
+            pickUpAddress.zipCode = "10026";
+            pickUpAddress.country = "United State of America";
+            pickUpAddress.city = "new york";
+            // pickUpAddress.delivery = delivery;
+
+            const droppOffAddress = new Address();
+            droppOffAddress.type = "dropOff";
+            droppOffAddress.street = "300 central park";
+            droppOffAddress.zipCode = "10021";
+            droppOffAddress.country = "United State of America";
+            droppOffAddress.city = "new york";
+            // droppOffAddress.delivery = delivery;
+
+
+            // pickUpAddress.delivery = delivery
+            delivery.addresses = [pickUpAddress, droppOffAddress];
+            // delivery.addresses.push(droppOffAddress);
+
+
+
+            // await connection.manager.save(droppOffAddress);
+            // await connection.manager.save(pickUpAddress);
             await connection.manager.save(delivery);
             await connection.close();
 
