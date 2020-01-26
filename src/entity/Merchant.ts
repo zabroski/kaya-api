@@ -1,7 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
 
 @Entity()
-export class Deliverer {
+export class Merchant {
 
     @PrimaryGeneratedColumn()
     id: number;

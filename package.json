@@ -18,6 +18,7 @@
    },
    "homepage": "https://github.com/zabroski/kaya-api#readme",
    "dependencies": {
+      "cors": "^2.8.5",
       "express": "^4.17.1",
       "mysql": "^2.14.1",
       "reflect-metadata": "^0.1.10",
