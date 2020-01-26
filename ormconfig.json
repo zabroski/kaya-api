@@ -6,6 +6,7 @@
    "password": "root",
    "database": "kaya-api",
    "synchronize": true,
+   "keepConnectionAlive": false,
    "logging": false,
    "entities": [
       "src/entity/**/*.ts"

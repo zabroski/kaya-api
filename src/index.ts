@@ -1,9 +1,10 @@
 import "reflect-metadata";
-import {createConnection, AdvancedConsoleLogger} from "typeorm";
+import {createConnection, getRepository} from "typeorm";
 import {User} from "./entity/User";
 import express = require('express');
 import { Deliverer } from "./entity/Deliverer";
 import { Merchant } from "./entity/Merchant";
+import { Delivery } from "./entity/Delivery";
 
 const app = express()
 const port = 3000
@@ -54,10 +55,31 @@ app.get('/deliverers', (req, res) => {
     createConnection().then(async (connection) => {
         const deliverers = await connection.manager.find(Deliverer);
         res.send(deliverers);
-
     });
-    
-  
+});
+
+app.post('/create-delivery/:delivererId', (req, res) => {
+    createConnection().then(async (connection) => {
+        const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId);
+
+        if(deliverer === undefined) {
+            await connection.close();
+            res.send("deliverer not found", 404);
+        } else {
+            const delivery = new Delivery();
+            delivery.deliverer = deliverer;
+            await connection.manager.save(delivery);
+            await connection.close();
+
+            res.send(`New delivery with id ${delivery.id} will be delivered by deliverer ${delivery.deliverer.firstName}`)
+        }
+
+
+    })
+
+
+
+    // res.send(req.params.delivererId)
 })
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

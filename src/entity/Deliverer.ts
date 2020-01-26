@@ -1,4 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm";
+import { Delivery } from "./Delivery";
+import { type } from "os";
 
 @Entity()
 export class Deliverer {
@@ -14,5 +16,8 @@ export class Deliverer {
 
     // @Column()
     // phoneNumber: number;
+
+    @OneToMany(type => Delivery, delivery => delivery.deliverer)
+    deliveries: Delivery[];
 
 }
