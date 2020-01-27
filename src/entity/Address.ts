@@ -22,6 +22,7 @@ export class Address {
 
     @Column()
     city: string;
+    
 
     @ManyToOne(type => Delivery, delivery => delivery.addresses)
     delivery :Delivery;

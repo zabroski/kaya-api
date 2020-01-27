@@ -10,6 +10,9 @@ import { Address } from "./entity/Address";
 const app = express()
 const port = 3000
 
+app.use(express.json());
+app.use(express.urlencoded())
+
 
 // createConnection().then(async connection => {
 
@@ -62,7 +65,10 @@ app.get('/deliverers', (req, res) => {
 app.post('/create-delivery/:delivererId', (req, res) => {
     createConnection().then(async (connection) => {
         const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
+        console.log(req.body)
+        console.log(req.body.addresses[0].street);
         const merchant = await getRepository(Merchant).findOne(1);
+     
 
         if(deliverer === undefined) {
             await connection.close();
@@ -73,11 +79,18 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             delivery.merchant = merchant;
 
             const pickUpAddress = new Address();
-            pickUpAddress.type = "pickup";
-            pickUpAddress.street = "235 w 116th";
-            pickUpAddress.zipCode = "10026";
-            pickUpAddress.country = "United State of America";
-            pickUpAddress.city = "new york";
+            pickUpAddress.type = req.body.addresses[0].type;
+            pickUpAddress.street = req.body.addresses[0].street;
+            pickUpAddress.zipCode = req.body.addresses[0].zipCode;
+            pickUpAddress.country = req.body.addresses[0].country;
+            pickUpAddress.city =  req.body.addresses[0].city;
+
+
+            // pickUpAddress.type = "pickup";
+            // pickUpAddress.street = "235 w 116th";
+            // pickUpAddress.zipCode = "10026";
+            // pickUpAddress.country = "United State of America";
+            // pickUpAddress.city = "new york";
             // pickUpAddress.delivery = delivery;
 
             const droppOffAddress = new Address();
@@ -86,6 +99,7 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             droppOffAddress.zipCode = "10021";
             droppOffAddress.country = "United State of America";
             droppOffAddress.city = "new york";
+            console.log(req.params)
             // droppOffAddress.delivery = delivery;
 
 
