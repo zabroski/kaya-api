@@ -38,13 +38,38 @@ app.post('/confirm-pickup/:deliveryId',(req, res) => {
 
     
 })
+
+
+
+app.post('/confirm-dropoff/:deliveryId',(req, res) => {
+    createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
+    if (delivery  === undefined) {
+        await connection.close();
+        res.send("delivery not found", 404)
+    } else {
+        delivery.status = "done";
+        // res.send(delivery)
+        await connection.manager.update(Delivery, req.params.deliveryId, {status: "done"})
+        await connection.close();
+         res.send(delivery)
+
+    }
+    })
+
+
+})
+
+
+
+
+
 app.post('/create-delivery/:delivererId', (req, res) => {
     createConnection().then(async (connection) => {
         const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
         console.log(req.body)
         console.log(req.body.addresses[0].street);
         const merchant = await getRepository(Merchant).findOne(1);
-     
 
         if(deliverer === undefined) {
             await connection.close();
@@ -53,6 +78,7 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             const delivery = new Delivery();
                 delivery.deliverer = deliverer;
                 delivery.merchant = merchant;
+                delivery.status = "padding"
 
             const pickUpAddress = new Address();
                 pickUpAddress.type = req.body.addresses[0].type;
@@ -60,7 +86,6 @@ app.post('/create-delivery/:delivererId', (req, res) => {
                 pickUpAddress.zipCode = req.body.addresses[0].zipCode;
                 pickUpAddress.country = req.body.addresses[0].country;
                 pickUpAddress.city =  req.body.addresses[0].city;
-
 
             const droppOffAddress = new Address();
                 droppOffAddress.type = req.body.addresses[0].type;

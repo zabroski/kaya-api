@@ -18,11 +18,8 @@ export class Delivery {
     @ManyToOne(type => Deliverer, deliverer => deliverer.deliveries)
     deliverer: Deliverer;
 
-
-
     @ManyToOne(type => Merchant, merchant => merchant.deliveries)
     merchant: Merchant;
-
 
     @OneToMany(type => Address, address => address.delivery, {
         cascade: true
