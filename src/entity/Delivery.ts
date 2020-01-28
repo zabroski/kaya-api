@@ -10,6 +10,9 @@ export class Delivery {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
+    status: string;
+
     // @Column()
     // phoneNumber: number;
     @ManyToOne(type => Deliverer, deliverer => deliverer.deliveries)

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createConnection, getRepository} from "typeorm";
+import {createConnection, getRepository, Connection, MongoEntityManager} from "typeorm";
 import {User} from "./entity/User";
 import express = require('express');
 import { Deliverer } from "./entity/Deliverer";
@@ -13,46 +13,6 @@ const port = 3000
 app.use(express.json());
 app.use(express.urlencoded())
 
-
-// createConnection().then(async connection => {
-
-//     console.log("Inserting a new user into the database...");
-//     const user = new User();
-//     user.firstName = "Timber";
-//     user.lastName = "Saw";
-//     user.age = 25;
-//     await connection.manager.save(user);
-//     console.log("Saved a new user with id: " + user.id);
-
-
-
-//     const deliverer = new Deliverer();
-//     deliverer.firstName = "Raye";
-//     deliverer.lastName = "Grady";
-//     // deliverer.phoneNumber = 2554356666;
-//     await connection.manager.save(deliverer);
-
-
-//     const merchant = new Merchant();
-//     merchant.firstName = "Laurent";
-//     merchant.lastName = "Breleur";
-//     // deliverer.phoneNumber = 2554356666;
-//     await connection.manager.save( merchant);
-
-
-//     console.log("Loading users from the database...");
-//     const users = await connection.manager.find(User);
-//     const deliverers = await connection.manager.find(Deliverer);
-//     const merchants = await connection.manager.find(Merchant);
-//     console.log("Loaded users: ", users);
-//     console.log("Loaded deliverers: ",deliverers);
-//     console.log("Loaded merchant: ",merchants);
-
-//     console.log("Here you can setup and run express/koa/any other framework.");
-
-// }).catch(error => console.log(error));
-
-
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/deliverers', (req, res) => {
 
@@ -61,7 +21,28 @@ app.get('/deliverers', (req, res) => {
         res.send(deliverers);
     });
 });
+app.post('./confirm-pickup/:deliveryId',(req, res) => {
+    createConnection().then(async (connection) => {
+        const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
 
+
+        if (delivery === undefined) {
+            await connection.close();
+            res.send("delivery not found",404)
+        } else {
+           delivery.status = "in trasit";
+        //    await connection.manager.save(delivery);
+        await connection.manager.update(Delivery, req.params.deliveryId, {status: "on transit"})
+           await connection.close();
+        }
+        // await connection.manager.update(Delivery, req.params.deliveryId, {status: "on transit"})
+        // await connection.close();
+
+       
+    })
+
+    
+})
 app.post('/create-delivery/:delivererId', (req, res) => {
     createConnection().then(async (connection) => {
         const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
@@ -75,40 +56,29 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             res.send("deliverer not found", 404);
         } else {
             const delivery = new Delivery();
-            delivery.deliverer = deliverer;
-            delivery.merchant = merchant;
+                delivery.deliverer = deliverer;
+                delivery.merchant = merchant;
 
             const pickUpAddress = new Address();
-            pickUpAddress.type = req.body.addresses[0].type;
-            pickUpAddress.street = req.body.addresses[0].street;
-            pickUpAddress.zipCode = req.body.addresses[0].zipCode;
-            pickUpAddress.country = req.body.addresses[0].country;
-            pickUpAddress.city =  req.body.addresses[0].city;
+                pickUpAddress.type = req.body.addresses[0].type;
+                pickUpAddress.street = req.body.addresses[0].street;
+                pickUpAddress.zipCode = req.body.addresses[0].zipCode;
+                pickUpAddress.country = req.body.addresses[0].country;
+                pickUpAddress.city =  req.body.addresses[0].city;
 
-
-            // pickUpAddress.type = "pickup";
-            // pickUpAddress.street = "235 w 116th";
-            // pickUpAddress.zipCode = "10026";
-            // pickUpAddress.country = "United State of America";
-            // pickUpAddress.city = "new york";
-            // pickUpAddress.delivery = delivery;
 
             const droppOffAddress = new Address();
-            droppOffAddress.type = "dropOff";
-            droppOffAddress.street = "300 central park";
-            droppOffAddress.zipCode = "10021";
-            droppOffAddress.country = "United State of America";
-            droppOffAddress.city = "new york";
-            console.log(req.params)
+                droppOffAddress.type = req.body.addresses[0].type;
+                droppOffAddress.street = req.body.addresses[0].street;
+                droppOffAddress.zipCode = req.body.addresses[0].zipCode;
+                droppOffAddress.country = req.body.addresses[0].country;
+                droppOffAddress.city =  req.body.addresses[0].city;
+                console.log(req.params)
             // droppOffAddress.delivery = delivery;
 
 
             // pickUpAddress.delivery = delivery
             delivery.addresses = [pickUpAddress, droppOffAddress];
-            // delivery.addresses.push(droppOffAddress);
-
-
-
             // await connection.manager.save(droppOffAddress);
             // await connection.manager.save(pickUpAddress);
             await connection.manager.save(delivery);
