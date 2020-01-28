@@ -21,24 +21,19 @@ app.get('/deliverers', (req, res) => {
         res.send(deliverers);
     });
 });
-app.post('./confirm-pickup/:deliveryId',(req, res) => {
+app.post('/confirm-pickup/:deliveryId',(req, res) => {
     createConnection().then(async (connection) => {
         const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
-
-
         if (delivery === undefined) {
             await connection.close();
             res.send("delivery not found",404)
         } else {
-           delivery.status = "in trasit";
-        //    await connection.manager.save(delivery);
-        await connection.manager.update(Delivery, req.params.deliveryId, {status: "on transit"})
-           await connection.close();
-        }
-        // await connection.manager.update(Delivery, req.params.deliveryId, {status: "on transit"})
-        // await connection.close();
+           delivery.status = "in transit";
+           res.send(delivery);
 
-       
+        await connection.manager.update(Delivery, req.params.deliveryId, {status: "in transit"})
+        await connection.close();
+        } 
     })
 
     
@@ -74,11 +69,8 @@ app.post('/create-delivery/:delivererId', (req, res) => {
                 droppOffAddress.country = req.body.addresses[0].country;
                 droppOffAddress.city =  req.body.addresses[0].city;
                 console.log(req.params)
-            // droppOffAddress.delivery = delivery;
 
-
-            // pickUpAddress.delivery = delivery
-            delivery.addresses = [pickUpAddress, droppOffAddress];
+                delivery.addresses = [pickUpAddress, droppOffAddress];
             // await connection.manager.save(droppOffAddress);
             // await connection.manager.save(pickUpAddress);
             await connection.manager.save(delivery);
