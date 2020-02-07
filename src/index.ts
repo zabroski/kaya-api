@@ -7,57 +7,35 @@ import { Merchant } from "./entity/Merchant";
 import { Delivery } from "./entity/Delivery";
 import { Address } from "./entity/Address";
 
+
 const app = express()
 const port = 3000
+let cors = require('cors')
 
 app.use(express.json());
-app.use(express.urlencoded())
+app.use(express.urlencoded());
+app.use(cors());
 
 app.get('/', (req, res) => res.send('Hello World!'))
+
 app.get('/deliverers', (req, res) => {
 
     createConnection().then(async (connection) => {
         const deliverers = await connection.manager.find(Deliverer);
+        await connection.close();
+
         res.send(deliverers);
     });
 });
-app.post('/confirm-pickup/:deliveryId',(req, res) => {
+
+
+app.get('/deliveries', (req, res) => {
     createConnection().then(async (connection) => {
-        const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
-        if (delivery === undefined) {
-            await connection.close();
-            res.send("delivery not found",404)
-        } else {
-           delivery.status = "in transit";
-           res.send(delivery);
-
-        await connection.manager.update(Delivery, req.params.deliveryId, {status: "in transit"})
+        const deliveries = await connection.manager.find(Delivery);
         await connection.close();
-        } 
-    })
 
-    
-})
-
-
-
-app.post('/confirm-dropoff/:deliveryId',(req, res) => {
-    createConnection().then(async (connection) => {
-    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
-    if (delivery  === undefined) {
-        await connection.close();
-        res.send("delivery not found", 404)
-    } else {
-        delivery.status = "done";
-        // res.send(delivery)
-        await connection.manager.update(Delivery, req.params.deliveryId, {status: "done"})
-        await connection.close();
-         res.send(delivery)
-
-    }
-    })
-
-
+        res.send(deliveries)
+    }) 
 })
 
 
@@ -67,8 +45,8 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
 app.post('/create-delivery/:delivererId', (req, res) => {
     createConnection().then(async (connection) => {
         const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
-        console.log(req.body)
-        console.log(req.body.addresses[0].street);
+        // console.log(req.body)
+        // console.log(req.body.addresses[0].street);
         const merchant = await getRepository(Merchant).findOne(1);
 
         if(deliverer === undefined) {
@@ -79,7 +57,7 @@ app.post('/create-delivery/:delivererId', (req, res) => {
                 delivery.deliverer = deliverer;
                 delivery.merchant = merchant;
                 delivery.status = "padding"
-
+                
             const pickUpAddress = new Address();
                 pickUpAddress.type = req.body.addresses[0].type;
                 pickUpAddress.street = req.body.addresses[0].street;
@@ -103,14 +81,44 @@ app.post('/create-delivery/:delivererId', (req, res) => {
 
             res.send(`New delivery with id ${delivery.id} will be delivered by deliverer ${delivery.deliverer.firstName}`)
         }
+    })
+})
 
-
+app.post('/confirm-pickup/:deliveryId',(req, res) => {
+    createConnection().then(async (connection) => {
+        const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
+        if (delivery === undefined) {
+            await connection.close();
+            res.send("delivery not found",404)
+        } else {
+           delivery.status = "in transit";
+           await connection.manager.update(Delivery, req.params.deliveryId, {status: "in transit"})
+           await connection.close();
+           
+           res.send(delivery);
+        } 
     })
 
-
-
-    // res.send(req.params.delivererId)
+    
 })
+
+app.post('/confirm-dropoff/:deliveryId',(req, res) => {
+    createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
+    if (delivery  === undefined) {
+        await connection.close();
+        res.send("delivery not found", 404)
+    } else {
+        delivery.status = "done";
+        // res.send(delivery)
+        await connection.manager.update(Delivery, req.params.deliveryId, {status: "done"})
+        await connection.close();
+         res.send(delivery)
+
+    }
+    })
+})
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
