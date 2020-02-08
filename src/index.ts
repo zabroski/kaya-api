@@ -30,16 +30,14 @@ app.get('/deliverers', (req, res) => {
 
 
 app.get('/deliveries', (req, res) => {
+
     createConnection().then(async (connection) => {
-        const deliveries = await connection.manager.find(Delivery);
+        const deliveries = await connection.manager.getTreeRepository(Delivery).findTrees();
         await connection.close();
 
         res.send(deliveries)
     }) 
 })
-
-
-
 
 
 app.post('/create-delivery/:delivererId', (req, res) => {
@@ -56,7 +54,7 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             const delivery = new Delivery();
                 delivery.deliverer = deliverer;
                 delivery.merchant = merchant;
-                delivery.status = "padding"
+                delivery.status = "pending"
                 
             const pickUpAddress = new Address();
                 pickUpAddress.type = req.body.addresses[0].type;
