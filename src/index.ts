@@ -52,6 +52,22 @@ app.get('/deliveries', (req, res) => {
         await connection.close();
         res.send(deliveries)
     }) 
+});
+
+
+app.get('/deliveries-history', (req, res) => {
+    createConnection().then(async (connection) => {
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
+            .where("delivery.status = :done")
+            .getMany();
+        await connection.close();
+        res.send(deliveries)
+    }) 
 })
 
 
