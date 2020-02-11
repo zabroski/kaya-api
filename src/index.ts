@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createConnection, getRepository, Connection, MongoEntityManager} from "typeorm";
+import {createConnection, createQueryBuilder, getRepository, Connection, MongoEntityManager, getConnection} from "typeorm";
 import {User} from "./entity/User";
 import express = require('express');
 import { Deliverer } from "./entity/Deliverer";
@@ -29,15 +29,37 @@ app.get('/deliverers', (req, res) => {
 });
 
 
+// app.get('/deliveries', (req, res) => {
+//     createConnection().then(async (connection) => {
+//         const deliveries = await connection.manager.find(Delivery);
+//         await connection.close();
+
+//         res.send(deliveries)
+//     }) 
+// })
+
+
 app.get('/deliveries', (req, res) => {
-
     createConnection().then(async (connection) => {
-        const deliveries = await connection.manager.getTreeRepository(Delivery).findTrees();
+        // const deliveries = await getConnection()
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .getMany();
+        // const deliveries = await createQueryBuilder('delivery')
+        // .from("delivery", "deliveries")
+        // // .leftJoinAndSelect(Merchant, "merchant")
+        // .leftJoinAndSelect("delivery.merchant", "merchant")
+        // .getMany();
         await connection.close();
-
         res.send(deliveries)
     }) 
 })
+
+
+
 
 
 app.post('/create-delivery/:delivererId', (req, res) => {
