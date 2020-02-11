@@ -47,12 +47,8 @@ app.get('/deliveries', (req, res) => {
             .createQueryBuilder("delivery")
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
             .getMany();
-        // const deliveries = await createQueryBuilder('delivery')
-        // .from("delivery", "deliveries")
-        // // .leftJoinAndSelect(Merchant, "merchant")
-        // .leftJoinAndSelect("delivery.merchant", "merchant")
-        // .getMany();
         await connection.close();
         res.send(deliveries)
     }) 
