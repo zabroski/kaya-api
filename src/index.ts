@@ -9,14 +9,46 @@ import { Address } from "./entity/Address";
 
 
 const app = express()
-const port = 3000
+const port =  process.env.PORT || 4567
+const bodyParser = require('body-parser')
+const logger = require('morgan')
 let cors = require('cors')
-
-app.use(express.json());
-app.use(express.urlencoded());
+app.use(logger('dev'))
 app.use(cors());
 
+require('dotenv').config()
+
+const authRouter = require('./router/authRouter')
+const appRouter = require('./router/appRouter')
+const { authorized} = require('./auth/auth')
+const passport = require('passport')
+
+
+
+
+
+// app.use(express.json()); 
+// app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+  app.use(bodyParser.json())
+//   app.use(express.static(path.join(__dirname, './client/build')));
+
+app.use('/auth', authRouter)
+app.use('/app',  authorized, appRouter)
+app.use(passport.initialize())
+
+
 app.get('/', (req, res) => res.send('Hello World!'))
+
+// if (process.env.NODE_ENV == "production") {
+//     app.use('*', (req, res) => res.sendFile(path.join(__dirname, './client/build', "index.html")));
+//   }
+
+
+
+
 
 app.get('/deliverers', (req, res) => {
 
@@ -63,7 +95,7 @@ app.get('/deliveries-history', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
-            .where("delivery.status = :done")
+            .where("delivery.status = 'done'" )
             .getMany();
         await connection.close();
         res.send(deliveries)
