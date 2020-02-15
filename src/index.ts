@@ -6,11 +6,16 @@ import { Deliverer } from "./entity/Deliverer";
 import { Merchant } from "./entity/Merchant";
 import { Delivery } from "./entity/Delivery";
 import { Address } from "./entity/Address";
+import { passport , jwtSign} from'./auth';
 
 
 const app = express()
 const port = 3000
 let cors = require('cors')
+
+// const authRouter = express.Router()
+// const { passport , jwtSign} = require('./auth') //import enhanced passport instance
+
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -149,7 +154,42 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
 
     }
     })
-})
+});
+
+
+
+app.post('/signup', async (req, res, next) => {
+    passport.authenticate('signup' , async (err, user, info) => {
+        console.log("-----> HERE 1 <----")
+       try {
+        if (err) {
+            console.log("-----> HERE <----")
+            const error:any = new Error(err)
+            error.status = 400
+            return next(error)
+         }
+         if(!user) {
+            console.log("-----> HERE 2 <----")
+           let error:any = new Error(info.message || 'An error occured during sigup')
+           error.status = 400
+           return next(error)
+         }
+
+         console.log("-----> HERE 3 <----")
+  
+         const { email, id } = user
+         const payload = { email, id}
+         const token = jwtSign(payload)
+         const message = JSON.stringify(info)
+         return res.json({user, token, message})
+  
+       }catch(e) {
+         return next(e)
+       }
+     }) (req, res, next)
+  
+
+  })
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

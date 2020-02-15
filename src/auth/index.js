@@ -1,6 +1,6 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-const { User } = require('../models/index.js')
+// const { User } = require('../models/index.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -10,15 +10,15 @@ const ExtractJWT = require('passport-jwt').ExtractJwt
 const SECRET = 'suoer long string'
 
 const jwtSign = (payload) =>{
-    return jwt.sign(payload, process.env.SECRET)
+    return jwt.sign(payload, SECRET)
 }
 
 passport.use(new JWTStrategy({
-    secretOrKey: process.env.SECRET,
+    secretOrKey: SECRET,
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
 }, async(token, done) => {
     try {
-        const user = await User.findByPk(token.id)
+        // const user = await User.findByPk(token.id)
 
         if(user) {
             done(null, user)
@@ -32,7 +32,7 @@ passport.use(new JWTStrategy({
     }
 }))
 
-passport.use('login', new LocalStrategy({
+  passport.use('login', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password'
 }, async (email, password, done) => {
@@ -63,30 +63,34 @@ passport.use('login', new LocalStrategy({
   }
 }))
 
+
+
+
 passport.use('signup', new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
     passReqToCallback: true
 }, async (req, email, password, done) => {
-    try {
-        console.log(req)
-        const { body: { name } } = req
+  console.log("RIGHT HERE");
+    // try {
+    //     console.log(req)
+    //     const { body: { name } } = req
 
-        const user = await User.create({
-            name: name,
-            email: email,
-            password: password
-        })
+    //     const user = await User.create({
+    //         name: name,
+    //         email: email,
+    //         password: password
+    //     })
 
-        if(!user) {
-            return done(null, false, {message: 'User not a user'})
-        }
-        done(null, user, {message: 'User suucessfuly created'})
+    //     if(!user) {
+    //         return done(null, false, {message: 'User not a user'})
+    //     }
+    //     done(null, user, {message: 'User suucessfuly created'})
 
-    } catch(e) {
-        done(e)
+    // } catch(e) {
+    //     done(e)
 
-    }
+    // }
 }))
 
 const authorized = (request, response, next) => {
