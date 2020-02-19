@@ -1,5 +1,5 @@
 import { Deliverer } from "../entity/Deliverer";
-import {createConnection, createQueryBuilder, getRepository, Connection, MongoEntityManager, getConnection} from "typeorm";
+import {createConnection } from "typeorm";
 
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
@@ -40,27 +40,49 @@ passport.use('login', new LocalStrategy({
   passwordField: 'password'
 }, async (email, password, done) => {
   try {
+
+    createConnection().then(async (connection) => {
+      
+      let user:any;
+
+      //database call to find user (deliverer) by email
+
+      if (!user) {
+        return done(null, false, { message: 'User not found'})
+      }
+
+          // compare passwords
+      const isMatching = await bcrypt.compare(password, user.password);
+      console.log(`*** validate: ${isMatching} ***`)
+      console.log(password, user.password)
+
+      if (!isMatching) {
+        return done(null, false, { message: 'Wrong password'})
+      }else{
+        // login was a success, return the user object
+        return done(null, user, { message: 'Logged in successfully'})
+      }
+
+    });
     // find user by their email
     const user:any = {};
     // await  Deliverer.findOne({ where: { email: email }})
     console.log(user)
     console.log(`*** user: ${user} ***`)
 
-    if (!user) {
-      return done(null, false, { message: 'User not found'})
-    }
 
-    // compare passwords
-    const validate = await bcrypt.compare(password, user.password);
-    console.log(`*** validate: ${validate} ***`)
-    console.log(password, user.password)
 
-    if (!validate) {
-      return done(null, false, { message: 'Wrong password'})
-    }
+    // // compare passwords
+    // const validate = await bcrypt.compare(password, user.password);
+    // console.log(`*** validate: ${validate} ***`)
+    // console.log(password, user.password)
 
-    // login was a success, return the user object
-    return done(null, user, { message: 'Logged in successfully'})
+    // if (!validate) {
+    //   return done(null, false, { message: 'Wrong password'})
+    // }
+
+    // // login was a success, return the user object
+    // return done(null, user, { message: 'Logged in successfully'})
 
   } catch(error) {
     return done(error)
@@ -75,7 +97,7 @@ passport.use('signup', new LocalStrategy({
   
     try {
         console.log(req)
-        const { body: { name } } = req
+        const { body } = req
 
         // const user = await User.create({
         //     name: name,
@@ -83,25 +105,24 @@ passport.use('signup', new LocalStrategy({
         //     password: password
         // })
 
+      createConnection().then(async (connection) => {
         const deliverer = new Deliverer();
         deliverer.email = email;
         deliverer.password = password;
+        deliverer.firstName = body.firstName;
+        deliverer.lastName = body.lastName;
+              
+        await connection.manager.save(deliverer);
+        await connection.close();
 
-        // await connection.manager.save(deliverer);
-        // await connection.close();
+        if(!deliverer) {
+            return done(null, false, {message: 'User not a user'})
+        }
 
-        
-
-      
-
-        // if(!deliverer) {
-        //     return done(null, false, {message: 'User not a user'})
-        // }
-        // done(null, user, {message: 'User suucessfuly created'})
-
+        done(null, deliverer, {message: 'User suucessfuly created'})
+      });
     } catch(e) {
         done(e)
-
     }
 }))
 

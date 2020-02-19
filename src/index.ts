@@ -37,16 +37,20 @@ app.use(passport.initialize())
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-app.get('/deliverers', (req, res) => {
+// app.get('/deliverers', (req, res) => {
 
-    createConnection().then(async (connection) => {
-        const deliverers = await connection.manager.find(Deliverer);
-        // await connection.manager.save(deliverer);
-        await connection.close();
+//     createConnection().then(async (connection) => {
+//         const deliverers = await connection.manager.find(Deliverer);
+//         const deliverer = new Deliverer();
+//         deliverer.email;
+//         deliverer.password,
+//         await connection.close();
 
-        res.send(deliverers);
-    });
-});
+//         res.send(deliverers);
+//     });
+// });
+
+
 
 
 // app.get('/deliveries', (req, res) => {

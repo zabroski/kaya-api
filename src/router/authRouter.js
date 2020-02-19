@@ -1,6 +1,6 @@
-const express = require('express')
-const authRouter = express.Router()
-const { passport , jwtSign} = require('../auth') //import enhanced passport instance
+const express = require('express');
+const authRouter = express.Router();
+const { passport , jwtSign} = require('../auth');
 
 
 // matches '/auth/login' route
