@@ -179,18 +179,6 @@ app.get('/', (req, res) => res.send('Hello World!'))
 
 
 
-// // app.post('/signup', async (req, res, next) => {
-// //     try{
-// //         const hashedPassword = await bcrypt.hash(req.body.password, 10)
-
-// //     }catch {
-
-// //     }
-   
-  
-
-// //   })
-
 
 
 // app.post('/signup', async (req, res, next) => {

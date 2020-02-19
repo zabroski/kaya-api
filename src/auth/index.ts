@@ -1,9 +1,8 @@
 import { Deliverer } from "../entity/Deliverer";
-import {createConnection } from "typeorm";
+import {createConnection, getRepository, Connection } from "typeorm";
 
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-// const { User } = require('../models/index.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -20,7 +19,7 @@ passport.use(new JWTStrategy({
     secretOrKey: SECRET,
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
 }, async(token, done) => {
-    try {
+    // try {
         // const user = await User.findByPk(token.id)
 
         // if(user) {
@@ -30,64 +29,48 @@ passport.use(new JWTStrategy({
         //     done(null. false)
         // }
 
-    } catch(e) {
-        done(e)
-    }
+    // } 
+    // catch(e) {
+    //     done(e)
+    // }
 }))
 
 passport.use('login', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password'
 }, async (email, password, done) => {
-  try {
+  
 
-    createConnection().then(async (connection) => {
-      
-      let user:any;
+  createConnection().then(async (connection) => {
+    
+    try {
+      let deliverer:any;
 
       //database call to find user (deliverer) by email
+       deliverer = await getRepository(Deliverer).findOne({email: email});
 
-      if (!user) {
-        return done(null, false, { message: 'User not found'})
+      if (!deliverer) {
+        return done({ message: 'User not found'})
       }
 
           // compare passwords
-      const isMatching = await bcrypt.compare(password, user.password);
+      const isMatching = await bcrypt.compare(password, deliverer.password);
+      // const isMatching = password === deliverer.password;
       console.log(`*** validate: ${isMatching} ***`)
-      console.log(password, user.password)
+      console.log(password, deliverer.password)
 
       if (!isMatching) {
-        return done(null, false, { message: 'Wrong password'})
+        return done({ message: 'Wrong password'})
       }else{
         // login was a success, return the user object
-        return done(null, user, { message: 'Logged in successfully'})
+        return done(null, deliverer, { message: 'Logged in successfully'})
       }
-
-    });
-    // find user by their email
-    const user:any = {};
-    // await  Deliverer.findOne({ where: { email: email }})
-    console.log(user)
-    console.log(`*** user: ${user} ***`)
-
-
-
-    // // compare passwords
-    // const validate = await bcrypt.compare(password, user.password);
-    // console.log(`*** validate: ${validate} ***`)
-    // console.log(password, user.password)
-
-    // if (!validate) {
-    //   return done(null, false, { message: 'Wrong password'})
-    // }
-
-    // // login was a success, return the user object
-    // return done(null, user, { message: 'Logged in successfully'})
-
-  } catch(error) {
-    return done(error)
-  }
+    } catch(error) {
+      return done(error)
+    }
+  });
 }))
+
 
 passport.use('signup', new LocalStrategy({
     usernameField: 'email',
@@ -108,9 +91,15 @@ passport.use('signup', new LocalStrategy({
       createConnection().then(async (connection) => {
         const deliverer = new Deliverer();
         deliverer.email = email;
-        deliverer.password = password;
         deliverer.firstName = body.firstName;
         deliverer.lastName = body.lastName;
+
+        const hashedPassword = await bcrypt.hash(
+            password,
+            Number(process.env.SALT_ROUNDS)
+        )
+
+        deliverer.password = hashedPassword;
               
         await connection.manager.save(deliverer);
         await connection.close();

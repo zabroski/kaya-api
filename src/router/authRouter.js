@@ -5,24 +5,23 @@ const { passport , jwtSign} = require('../auth');
 
 // matches '/auth/login' route
 authRouter.post('/login', (req, res, next) => {
-  passport.authenticate('login', async (err, user, info) => {
+  passport.authenticate('login', async (error, deliverer, info) => {
     try {
-      if (err || !user) {
-       
-        const error = new Error(error)
-        return next(error)
+      if (error || !deliverer) {       
+        const e = new Error(error.message)
+        return next(e)
       }
 
-      req.login(user, { session: false }, async (error) => {
+      req.login(deliverer, { session: false }, async (error) => {
         if (error) {
           return next(error)
         }
 
-        const { email, id } = user
+        const { email, id } = deliverer
         const payload = {email, id}
         const token = jwtSign(payload)
 
-        return res.json({ user, token })
+        return res.json({ deliverer, token })
       })
     } catch (error) {
       return next(error)
