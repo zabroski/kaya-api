@@ -33,7 +33,8 @@ passport.use('login', new LocalStrategy({
       let deliverer:any;
 
       //database call to find user (deliverer) by email
-       deliverer = await getRepository(Deliverer).findOne({email: email});
+      deliverer = await getRepository(Deliverer).findOne({email: email});
+      await connection.close();
 
       if (!deliverer) {
         return done({ message: 'Deliverer not found'})

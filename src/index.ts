@@ -31,18 +31,18 @@ app.use(passport.initialize())
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-// app.get('/deliverers', (req, res) => {
+app.get('/deliverers', (req, res) => {
 
-//     createConnection().then(async (connection) => {
-//         const deliverers = await connection.manager.find(Deliverer);
-//         const deliverer = new Deliverer();
-//         deliverer.email;
-//         deliverer.password,
-//         await connection.close();
+    createConnection().then(async (connection) => {
+        const deliverers = await connection.manager.find(Deliverer);
+        const deliverer = new Deliverer();
+        deliverer.email;
+        deliverer.password,
+        await connection.close();
 
-//         res.send(deliverers);
-//     });
-// });
+        res.send(deliverers);
+    });
+});
 
 
 
@@ -73,20 +73,20 @@ app.get('/deliveries', (req, res) => {
 });
 
 
-// app.get('/deliveries-history', (req, res) => {
-//     createConnection().then(async (connection) => {
-//         const deliveries =  await connection
-//             .getRepository(Delivery)
-//             .createQueryBuilder("delivery")
-//             .leftJoinAndSelect("delivery.merchant", "merchant")
-//             .leftJoinAndSelect("delivery.deliverer", "deliverer")
-//             .leftJoinAndSelect("delivery.addresses", "addresses")
-//             .where("delivery.status = 'done'" )
-//             .getMany();
-//         await connection.close();
-//         res.send(deliveries)
-//     }) 
-// })
+app.get('/deliveries-history', (req, res) => {
+    createConnection().then(async (connection) => {
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
+            .where("delivery.status = 'done'" )
+            .getMany();
+        await connection.close();
+        res.send(deliveries)
+    }) 
+})
 
 
 
