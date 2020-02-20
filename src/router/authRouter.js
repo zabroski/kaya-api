@@ -3,12 +3,11 @@ const authRouter = express.Router();
 const { passport , jwtSign} = require('../auth');
 
 
-// matches '/auth/login' route
 authRouter.post('/login', (req, res, next) => {
   passport.authenticate('login', async (error, deliverer, info) => {
     try {
       if (error || !deliverer) {       
-        const e = new Error(error.message)
+        const e = new Error(error)
         return next(e)
       }
 

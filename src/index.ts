@@ -18,12 +18,6 @@ let cors = require('cors')
 // const bodyParser = require('body-parser')
 
 
-// const authRouter = require('./router/authRouter')
-// const { authorized} = require('./auth/auth')
-// const passport = require('passport')
-
-// const authRouter = express.Router()
-// const { passport , jwtSign} = require('./auth') //import enhanced passport instance
 
 
 app.use(express.json());
@@ -63,20 +57,20 @@ app.get('/', (req, res) => res.send('Hello World!'))
 // })
 
 
-// app.get('/deliveries', (req, res) => {
-//     createConnection().then(async (connection) => {
-//         // const deliveries = await getConnection()
-//         const deliveries =  await connection
-//             .getRepository(Delivery)
-//             .createQueryBuilder("delivery")
-//             .leftJoinAndSelect("delivery.merchant", "merchant")
-//             .leftJoinAndSelect("delivery.deliverer", "deliverer")
-//             .leftJoinAndSelect("delivery.addresses", "addresses")
-//             .getMany();
-//         await connection.close();
-//         res.send(deliveries)
-//     }) 
-// });
+app.get('/deliveries', (req, res) => {
+    createConnection().then(async (connection) => {
+        // const deliveries = await getConnection()
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
+            .getMany();
+        await connection.close();
+        res.send(deliveries)
+    }) 
+});
 
 
 // app.get('/deliveries-history', (req, res) => {
@@ -174,47 +168,6 @@ app.get('/', (req, res) => res.send('Hello World!'))
 //     }
 //     })
 // });
-
-
-
-
-
-
-
-// app.post('/signup', async (req, res, next) => {
-//     passport.authenticate('signup' , async (err, user, info) => {
-//         console.log("-----> HERE 1 <----")
-//        try {
-//         if (err) {
-//             console.log("-----> HERE <----")
-//             const error:any = new Error(err)
-//             error.status = 400
-//             return next(error)
-//          }
-//          if(!user) {
-//             console.log("-----> HERE 2: ", info.message)
-//            let error:any = new Error(info.message || 'An error occured during sigup')
-//            error.status = 400
-//            return next(error)
-//          }
-
-//          console.log("-----> HERE 3 <----")
-  
-//          const { email, id } = user
-//          const payload = { email, id}
-//          const token = jwtSign(payload)
-//          const message = JSON.stringify(info)
-//          return res.json({user, token, message})
-  
-//        }catch(e) {
-//          return next(e)
-//        }
-//      }) (req, res, next)
-  
-
-//   })
-
-
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 

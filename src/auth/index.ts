@@ -1,5 +1,5 @@
 import { Deliverer } from "../entity/Deliverer";
-import {createConnection, getRepository, Connection } from "typeorm";
+import {createConnection, getRepository} from "typeorm";
 
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
@@ -19,27 +19,13 @@ passport.use(new JWTStrategy({
     secretOrKey: SECRET,
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
 }, async(token, done) => {
-    // try {
-        // const user = await User.findByPk(token.id)
-
-        // if(user) {
-        //     done(null, user)
-        // }
-        // else {
-        //     done(null. false)
-        // }
-
-    // } 
-    // catch(e) {
-    //     done(e)
-    // }
+   
 }))
 
 passport.use('login', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password'
 }, async (email, password, done) => {
-  
 
   createConnection().then(async (connection) => {
     
@@ -50,7 +36,7 @@ passport.use('login', new LocalStrategy({
        deliverer = await getRepository(Deliverer).findOne({email: email});
 
       if (!deliverer) {
-        return done({ message: 'User not found'})
+        return done({ message: 'Deliverer not found'})
       }
 
           // compare passwords
@@ -118,7 +104,6 @@ passport.use('signup', new LocalStrategy({
 const authorized = (request, response, next) => {
     passport.authenticate('jwt', { session: false }, async (error, user) => {
       if (error || !user) {
-        // response.status(401).json({ message: 'Unauthorized' });
         let err:any = new Error('No sccess allowed')
         err.status = 401
         return next(err)
@@ -130,7 +115,3 @@ const authorized = (request, response, next) => {
   }
 
 export {passport, jwtSign, authorized}
-//  passport;
-// module.exports = {
-//   passport, jwtSign, authorized 
-// }
