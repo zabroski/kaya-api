@@ -47,12 +47,13 @@ authRouter.post('/signup', async (req, res, next) => {
       const payload = { email, id}
       const token = jwtSign(payload)
       const message = JSON.stringify(info)
-
+      
       return res.json({deliverer, token, message})
 
     }catch(e) {
       return next(e)
     }
+    
   }) (req, res, next)
 })
 
