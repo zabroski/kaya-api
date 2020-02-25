@@ -14,10 +14,6 @@ const authRouter = require('./router/authRouter')
 const app = express()
 const port = 3000
 let cors = require('cors')
-// const bcrypt = require('bcrypt')
-// const bodyParser = require('body-parser')
-
-
 
 
 app.use(express.json());
@@ -66,6 +62,7 @@ app.get('/deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
+            // .where("delivery.status = 'done'" )
             .getMany();
         await connection.close();
         res.send(deliveries)
@@ -82,6 +79,23 @@ app.get('/deliveries-history', (req, res) => {
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
             .where("delivery.status = 'done'" )
+            .getMany();
+        await connection.close();
+        res.send(deliveries)
+    }) 
+});
+
+
+
+app.get('/transit-deliveries', (req, res) => {
+    createConnection().then(async (connection) => {
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
+            .where("delivery.status = 'in transit'" )
             .getMany();
         await connection.close();
         res.send(deliveries)
@@ -168,6 +182,8 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
     }
     })
 });
+
+
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
