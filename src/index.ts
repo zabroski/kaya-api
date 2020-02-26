@@ -62,7 +62,6 @@ app.get('/deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
-            // .where("delivery.status = 'done'" )
             .getMany();
         await connection.close();
         res.send(deliveries)
@@ -120,7 +119,7 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             const delivery = new Delivery();
                 delivery.deliverer = deliverer;
                 delivery.merchant = merchant;
-                delivery.status = "pending"
+                delivery.status = "new"
                 
             const pickUpAddress = new Address();
                 pickUpAddress.type = req.body.addresses[0].type;
@@ -176,6 +175,25 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
         delivery.status = "done";
         // res.send(delivery)
         await connection.manager.update(Delivery, req.params.deliveryId, {status: "done"})
+        await connection.close();
+         res.send(delivery)
+
+    }
+    })
+});
+
+
+
+
+app.post('/accept-delivery/:deliveryId',(req, res) => {
+    createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
+    if (delivery  === undefined) {
+        await connection.close();
+        res.send("delivery not found", 404)
+    } else {
+        // res.send(delivery)
+        await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
         await connection.close();
          res.send(delivery)
 
