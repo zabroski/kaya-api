@@ -102,6 +102,22 @@ app.get('/transit-deliveries', (req, res) => {
 })
 
 
+app.get('/new-deliveries', (req, res) => {
+    createConnection().then(async (connection) => {
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
+            .where("delivery.status = 'accepted'" )
+            .getMany();
+        await connection.close();
+        res.send(deliveries)
+    }) 
+})
+
+
 
 
 
