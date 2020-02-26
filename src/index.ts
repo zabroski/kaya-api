@@ -110,6 +110,22 @@ app.get('/new-deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
+            .where("delivery.status = 'new'" )
+            .getMany();
+        await connection.close();
+        res.send(deliveries)
+    }) 
+})
+
+
+app.get('/accepted-deliveries', (req, res) => {
+    createConnection().then(async (connection) => {
+        const deliveries =  await connection
+            .getRepository(Delivery)
+            .createQueryBuilder("delivery")
+            .leftJoinAndSelect("delivery.merchant", "merchant")
+            .leftJoinAndSelect("delivery.deliverer", "deliverer")
+            .leftJoinAndSelect("delivery.addresses", "addresses")
             .where("delivery.status = 'accepted'" )
             .getMany();
         await connection.close();
@@ -208,7 +224,6 @@ app.post('/accept-delivery/:deliveryId',(req, res) => {
         await connection.close();
         res.send("delivery not found", 404)
     } else {
-        // res.send(delivery)
         await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
         await connection.close();
          res.send(delivery)
