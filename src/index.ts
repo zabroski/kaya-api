@@ -102,7 +102,7 @@ app.get('/transit-deliveries', (req, res) => {
 })
 
 
-app.get('/new-deliveries', (req, res) => {
+app.get('/new-delivery', (req, res) => {
     createConnection().then(async (connection) => {
         const deliveries =  await connection
             .getRepository(Delivery)
@@ -118,7 +118,7 @@ app.get('/new-deliveries', (req, res) => {
 })
 
 
-app.get('/accepted-deliveries', (req, res) => {
+app.get('/accepted-delivery', (req, res) => {
     createConnection().then(async (connection) => {
         const deliveries =  await connection
             .getRepository(Delivery)
@@ -179,6 +179,21 @@ app.post('/create-delivery/:delivererId', (req, res) => {
     })
 })
 
+app.post('/accept-delivery/:deliveryId',(req, res) => {
+    createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
+    if (delivery  === undefined) {
+        await connection.close();
+        res.send("delivery not found", 404)
+    } else {
+        await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
+        await connection.close();
+         res.send(delivery)
+
+    }
+    })
+});
+
 app.post('/confirm-pickup/:deliveryId',(req, res) => {
     createConnection().then(async (connection) => {
         const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
@@ -217,20 +232,7 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
 
 
 
-app.post('/accept-delivery/:deliveryId',(req, res) => {
-    createConnection().then(async (connection) => {
-    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
-    if (delivery  === undefined) {
-        await connection.close();
-        res.send("delivery not found", 404)
-    } else {
-        await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
-        await connection.close();
-         res.send(delivery)
 
-    }
-    })
-});
 
 
 
