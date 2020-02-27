@@ -102,7 +102,7 @@ app.get('/transit-deliveries', (req, res) => {
 })
 
 
-app.get('/new-delivery', (req, res) => {
+app.get('/new-deliveries', (req, res) => {
     createConnection().then(async (connection) => {
         const deliveries =  await connection
             .getRepository(Delivery)
@@ -118,7 +118,7 @@ app.get('/new-delivery', (req, res) => {
 })
 
 
-app.get('/accepted-delivery', (req, res) => {
+app.get('/accepted-deliveries', (req, res) => {
     createConnection().then(async (connection) => {
         const deliveries =  await connection
             .getRepository(Delivery)
