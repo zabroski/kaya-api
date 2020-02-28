@@ -94,6 +94,7 @@ app.get('/transit-deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
+            .addOrderBy("delivery.id", "DESC")
             .where("delivery.status = 'in transit'" )
             .getMany();
         await connection.close();
@@ -110,6 +111,7 @@ app.get('/new-deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
+            .addOrderBy("delivery.id", "DESC")
             .where("delivery.status = 'new'" )
             .getMany();
         await connection.close();
@@ -126,7 +128,8 @@ app.get('/accepted-deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.merchant", "merchant")
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
-            .where("delivery.status = 'accepted'" )
+            .addOrderBy("delivery.id", "DESC")
+            .where("delivery.status = 'accepted'" ) //or
             .getMany();
         await connection.close();
         res.send(deliveries)
