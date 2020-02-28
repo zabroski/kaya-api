@@ -189,7 +189,6 @@ app.post('/accept-delivery/:deliveryId',(req, res) => {
         await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
         await connection.close();
          res.send(delivery)
-
     }
     })
 });
