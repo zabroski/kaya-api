@@ -129,7 +129,10 @@ app.get('/accepted-deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
             .addOrderBy("delivery.id", "DESC")
-            .where("delivery.status = 'accepted'" ) //or
+            .where("delivery.status = 'accepted' OR delivery.status = 'in transit'" )
+            // .orWhere()
+            // .where("delivery.status = 'accepted'" )
+            // .andWhere("delivery.status = 'in transit'" )
             .getMany();
         await connection.close();
         res.send(deliveries)
