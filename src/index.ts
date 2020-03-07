@@ -129,10 +129,8 @@ app.get('/accepted-deliveries', (req, res) => {
             .leftJoinAndSelect("delivery.deliverer", "deliverer")
             .leftJoinAndSelect("delivery.addresses", "addresses")
             .addOrderBy("delivery.id", "DESC")
-            .where("delivery.status = 'accepted' OR delivery.status = 'in transit'" )
-            // .orWhere()
-            // .where("delivery.status = 'accepted'" )
-            // .andWhere("delivery.status = 'in transit'" )
+            .where("delivery.status = 'accepted' OR delivery.status = 'Dropping Off'" )
+            
             .getMany();
         await connection.close();
         res.send(deliveries)
@@ -158,6 +156,7 @@ app.post('/create-delivery/:delivererId', (req, res) => {
                 delivery.deliverer = deliverer;
                 delivery.merchant = merchant;
                 delivery.status = "new"
+
                 
             const pickUpAddress = new Address();
                 pickUpAddress.type = req.body.addresses[0].type;
@@ -194,10 +193,27 @@ app.post('/accept-delivery/:deliveryId',(req, res) => {
     } else {
         await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
         await connection.close();
-         res.send(delivery)
+        delivery.status = "accepted";
+        res.send(delivery)
     }
     })
 });
+
+
+
+// app.post('/new-delivery/:deliveryId',(req, res) => {
+//     createConnection().then(async (connection) => {
+//     const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
+//     if (delivery  === undefined) {
+//         await connection.close();
+//         res.send("delivery not found", 404)
+//     } else {
+//         await connection.manager.update(Delivery, req.params.deliveryId, {status: "new"})
+//         await connection.close();
+//          res.send(delivery)
+//     }
+//     })
+// });
 
 app.post('/confirm-pickup/:deliveryId',(req, res) => {
     createConnection().then(async (connection) => {
@@ -233,6 +249,7 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
     }
     })
 });
+
 
 
 
