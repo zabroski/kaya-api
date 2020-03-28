@@ -12,6 +12,12 @@ export class Merchant {
     @Column()
     lastName: string;
 
+    @Column()
+    email: string;
+
+    @Column()
+    password: string;
+
     // @Column()
     // phoneNumber: number;
 

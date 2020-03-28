@@ -102,17 +102,118 @@ passport.use('signup', new LocalStrategy({
     }
 }))
 
-const authorized = (request, response, next) => {
-    passport.authenticate('jwt', { session: false }, async (error, user) => {
-      if (error || !user) {
-        let err:any = new Error('No sccess allowed')
-        err.status = 401
-        return next(err)
-      }
 
-      request.user = user
-      return next()
-    })(request, response, next)
-  }
 
-export {passport, jwtSign, authorized}
+
+//<=============Merchant auth==================>
+
+
+// roomPassport.use(new JWTStrategy({
+//   secretOrKey: SECRET,
+//   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
+// }, async(token, done) => {
+ 
+// }))
+
+
+
+
+// roomPassport.use('login', new LocalStrategy({
+//   usernameField: 'email',
+//   passwordField: 'password'
+// }, async (email, password, done) => {
+
+//   createConnection().then(async (connection) => {
+    
+//     try {
+//       let merchant:any;
+
+//       //database call to find user (deliverer) by email
+//       merchant = await getRepository(Merchant).findOne({email: email});
+//       await connection.close();
+
+//       if (!merchant) {
+//         return done({ message: 'Merchant not found'})
+//       }
+
+//           // compare passwords
+//       const isMatching = await bcrypt.compare(password, merchant.password);
+//       // const isMatching = password === deliverer.password;
+//       console.log(`*** validate: ${isMatching} ***`)
+//       console.log(password, merchant.password)
+
+//       if (!isMatching) {
+//         return done({ message: 'Wrong password'})
+//       }else{
+//         // login was a success, return the user object
+//         return done(null, merchant, { message: 'Logged in successfully'})
+//       }
+//     } catch(error) {
+//       return done(error)
+//     }
+//   });
+// }))
+
+
+
+
+// roomPassport.use('signup', new LocalStrategy({
+//   usernameField: 'email',
+//   passwordField: 'password',
+//   passReqToCallback: true
+// }, async (req, email, password, done) => {
+
+//   try {
+//       console.log(req)
+//       const { body } = req
+      
+//     createConnection().then(async (connection) => {
+//       const merchant = new Merchant();
+//       merchant.email = email;
+//       merchant.firstName = body.firstName;
+//       merchant.lastName = body.lastName;
+
+//       const hashedPassword = await bcrypt.hash(
+//           password,
+//           Number(process.env.SALT_ROUNDS)
+//       )
+
+//       merchant.password = hashedPassword;
+            
+//       await connection.manager.save(merchant);
+//       await connection.close();
+
+//       if(!merchant) {
+//           return done(null, false, {message: 'User not a user'})
+//       }
+
+//       done(null, merchant, {message: 'User suucessfuly created'})
+//     });
+//   } catch(e) {
+//       done(e)
+//   }
+// }))
+
+
+
+
+
+
+
+
+
+
+// const authorized = (request, response, next) => {
+//     passport.authenticate('jwt', { session: false }, async (error, user) => {
+//       if (error || !user) {
+//         let err:any = new Error('No sccess allowed')
+//         err.status = 401
+//         return next(err)
+//       }
+
+//       request.user = user
+//       return next()
+//     })(request, response, next)
+//   }
+
+export {passport, jwtSign,}
