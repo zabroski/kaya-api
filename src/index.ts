@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {createConnection, createQueryBuilder, getRepository, Connection, MongoEntityManager, getConnection} from "typeorm";
 // import {User} from "./entity/User";
-import express = require('express');
+const express = require('express');
 import { Deliverer } from "./entity/Deliverer";
 import { Merchant } from "./entity/Merchant";
 import { Delivery } from "./entity/Delivery";
@@ -20,25 +20,26 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
 
+// app.use("/auth", authRouter);
+app.use(require('./routes'));
 
-app.use("/auth", authRouter);
 // app.use("/app", authorized);
 app.use(passport.initialize())
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-app.get('/deliverers', (req, res) => {
+// app.get('/deliverers', (req, res) => {
 
-    createConnection().then(async (connection) => {
-        const deliverers = await connection.manager.find(Deliverer);
-        const deliverer = new Deliverer();
-        deliverer.email;
-        deliverer.password,
-        await connection.close();
+//     createConnection().then(async (connection) => {
+//         const deliverers = await connection.manager.find(Deliverer);
+//         const deliverer = new Deliverer();
+//         deliverer.email;
+//         deliverer.password,
+//         await connection.close();
 
-        res.send(deliverers);
-    });
-});
+//         res.send(deliverers);
+//     });
+// });
 
 
 
@@ -249,10 +250,6 @@ app.post('/confirm-dropoff/:deliveryId',(req, res) => {
     }
     })
 });
-
-
-
-
 
 
 
