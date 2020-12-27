@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import {createConnection, createQueryBuilder, getRepository, Connection, MongoEntityManager, getConnection} from "typeorm";
+import {createConnection, createQueryBuilder, getRepository, Connection, MongoEntityManager, getConnection, Like} from "typeorm";
 // import {User} from "./entity/User";
 const express = require('express');
 import { Deliverer } from "./entity/Deliverer";
@@ -7,12 +7,11 @@ import { Merchant } from "./entity/Merchant";
 import { Delivery } from "./entity/Delivery";
 import { Address } from "./entity/Address";
 
-import { passport , jwtSign} from'./auth';
 
-const authRouter = require('./router/authRouter')
+
 
 const app = express()
-const port = 3000
+const port = 3000;
 let cors = require('cors')
 
 
@@ -20,13 +19,11 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
 
-// app.use("/auth", authRouter);
-app.use(require('./routes'));
 
-// app.use("/app", authorized);
-app.use(passport.initialize())
 
-app.get('/', (req, res) => res.send('Hello World!'))
+
+
+app.get('/', (req, res) => res.send('Hello World!dddddddddddddddddd'))
 
 // app.get('/deliverers', (req, res) => {
 
@@ -70,6 +67,7 @@ app.get('/deliveries', (req, res) => {
 });
 
 
+
 app.get('/deliveries-history', (req, res) => {
     createConnection().then(async (connection) => {
         const deliveries =  await connection
@@ -84,8 +82,6 @@ app.get('/deliveries-history', (req, res) => {
         res.send(deliveries)
     }) 
 });
-
-
 
 app.get('/transit-deliveries', (req, res) => {
     createConnection().then(async (connection) => {
@@ -145,8 +141,6 @@ app.get('/accepted-deliveries', (req, res) => {
 app.post('/create-delivery/:delivererId', (req, res) => {
     createConnection().then(async (connection) => {
         const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
-        // console.log(req.body)
-        // console.log(req.body.addresses[0].street);
         const merchant = await getRepository(Merchant).findOne(1);
 
         if(deliverer === undefined) {
@@ -156,7 +150,8 @@ app.post('/create-delivery/:delivererId', (req, res) => {
             const delivery = new Delivery();
                 delivery.deliverer = deliverer;
                 delivery.merchant = merchant;
-                delivery.status = "new"
+                delivery.status = "new";
+                delivery.heart = "like"
 
                 
             const pickUpAddress = new Address();
@@ -215,6 +210,27 @@ app.post('/accept-delivery/:deliveryId',(req, res) => {
 //     }
 //     })
 // });
+
+
+app.post('like-deliverer/:deliveryId', (req, res) =>{
+    createConnection().then(async (connection) => {
+        const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
+        if (delivery.heart === "black") {
+            await connection.close();
+            res.send("no like")
+
+        } else {
+            delivery.heart === "liked"
+            await connection.manager.update(Delivery, req.params.deliveryId, {status: "liked"})
+            await connection.close();
+
+            res.send(delivery);
+        }
+    })
+    console.log(res.send('hello'))
+
+})
+
 
 app.post('/confirm-pickup/:deliveryId',(req, res) => {
     createConnection().then(async (connection) => {

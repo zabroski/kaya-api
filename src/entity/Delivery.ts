@@ -13,8 +13,8 @@ export class Delivery {
     @Column()
     status: string;
 
-    // @Column()
-    // phoneNumber: number;
+    @Column()
+    heart: string;
     
     @ManyToOne(type => Deliverer, deliverer => deliverer.deliveries)
     deliverer: Deliverer;
