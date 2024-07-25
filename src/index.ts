@@ -1,29 +1,29 @@
 import "reflect-metadata";
-import {createConnection, createQueryBuilder, getRepository, Connection, MongoEntityManager, getConnection, Like} from "typeorm";
+import {
+  createConnection,
+  createQueryBuilder,
+  getRepository,
+  Connection,
+  MongoEntityManager,
+  getConnection,
+  Like,
+} from "typeorm";
 // import {User} from "./entity/User";
-const express = require('express');
+const express = require("express");
 import { Deliverer } from "./entity/Deliverer";
 import { Merchant } from "./entity/Merchant";
 import { Delivery } from "./entity/Delivery";
 import { Address } from "./entity/Address";
 
-
-
-
-const app = express()
+const app = express();
 const port = 3000;
-let cors = require('cors')
-
+let cors = require("cors");
 
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
 
-
-
-
-
-app.get('/', (req, res) => res.send('Hello World!dddddddddddddddddd'))
+// app.get("/", (req, res) => res.send("Hello World!dddddddddddddddddd"));
 
 // app.get('/deliverers', (req, res) => {
 
@@ -38,164 +38,157 @@ app.get('/', (req, res) => res.send('Hello World!dddddddddddddddddd'))
 //     });
 // });
 
+app.get("/deliveries", (req, res) => {
+  createConnection().then(async (connection) => {
+    const deliveries = await connection.manager.find(Delivery);
+    await connection.close();
 
-
-
-// app.get('/deliveries', (req, res) => {
-//     createConnection().then(async (connection) => {
-//         const deliveries = await connection.manager.find(Delivery);
-//         await connection.close();
-
-//         res.send(deliveries)
-//     }) 
-// })
-
-
-app.get('/deliveries', (req, res) => {
-    createConnection().then(async (connection) => {
-        // const deliveries = await getConnection()
-        const deliveries =  await connection
-            .getRepository(Delivery)
-            .createQueryBuilder("delivery")
-            .leftJoinAndSelect("delivery.merchant", "merchant")
-            .leftJoinAndSelect("delivery.deliverer", "deliverer")
-            .leftJoinAndSelect("delivery.addresses", "addresses")
-            .getMany();
-        await connection.close();
-        res.send(deliveries)
-    }) 
+    res.send(deliveries);
+  });
 });
 
-
-
-app.get('/deliveries-history', (req, res) => {
-    createConnection().then(async (connection) => {
-        const deliveries =  await connection
-            .getRepository(Delivery)
-            .createQueryBuilder("delivery")
-            .leftJoinAndSelect("delivery.merchant", "merchant")
-            .leftJoinAndSelect("delivery.deliverer", "deliverer")
-            .leftJoinAndSelect("delivery.addresses", "addresses")
-            .where("delivery.status = 'done'" )
-            .getMany();
-        await connection.close();
-        res.send(deliveries)
-    }) 
+app.get("/deliveries", (req, res) => {
+  createConnection().then(async (connection) => {
+    // const deliveries = await getConnection()
+    const deliveries = await connection
+      .getRepository(Delivery)
+      .createQueryBuilder("delivery")
+      .leftJoinAndSelect("delivery.merchant", "merchant")
+      .leftJoinAndSelect("delivery.deliverer", "deliverer")
+      .leftJoinAndSelect("delivery.addresses", "addresses")
+      .getMany();
+    await connection.close();
+    res.send(deliveries);
+  });
 });
 
-app.get('/transit-deliveries', (req, res) => {
-    createConnection().then(async (connection) => {
-        const deliveries =  await connection
-            .getRepository(Delivery)
-            .createQueryBuilder("delivery")
-            .leftJoinAndSelect("delivery.merchant", "merchant")
-            .leftJoinAndSelect("delivery.deliverer", "deliverer")
-            .leftJoinAndSelect("delivery.addresses", "addresses")
-            .addOrderBy("delivery.id", "DESC")
-            .where("delivery.status = 'in transit'" )
-            .getMany();
-        await connection.close();
-        res.send(deliveries)
-    }) 
-})
+app.get("/deliveries-history", (req, res) => {
+  createConnection().then(async (connection) => {
+    const deliveries = await connection
+      .getRepository(Delivery)
+      .createQueryBuilder("delivery")
+      .leftJoinAndSelect("delivery.merchant", "merchant")
+      .leftJoinAndSelect("delivery.deliverer", "deliverer")
+      .leftJoinAndSelect("delivery.addresses", "addresses")
+      .where("delivery.status = 'done'")
+      .getMany();
+    await connection.close();
+    res.send(deliveries);
+  });
+});
 
+app.get("/transit-deliveries", (req, res) => {
+  createConnection().then(async (connection) => {
+    const deliveries = await connection
+      .getRepository(Delivery)
+      .createQueryBuilder("delivery")
+      .leftJoinAndSelect("delivery.merchant", "merchant")
+      .leftJoinAndSelect("delivery.deliverer", "deliverer")
+      .leftJoinAndSelect("delivery.addresses", "addresses")
+      .addOrderBy("delivery.id", "DESC")
+      .where("delivery.status = 'in transit'")
+      .getMany();
+    await connection.close();
+    res.send(deliveries);
+  });
+});
 
-app.get('/new-deliveries', (req, res) => {
-    createConnection().then(async (connection) => {
-        const deliveries =  await connection
-            .getRepository(Delivery)
-            .createQueryBuilder("delivery")
-            .leftJoinAndSelect("delivery.merchant", "merchant")
-            .leftJoinAndSelect("delivery.deliverer", "deliverer")
-            .leftJoinAndSelect("delivery.addresses", "addresses")
-            .addOrderBy("delivery.id", "DESC")
-            .where("delivery.status = 'new'" )
-            .getMany();
-        await connection.close();
-        res.send(deliveries)
-    }) 
-})
+app.get("/new-deliveries", (req, res) => {
+  createConnection().then(async (connection) => {
+    const deliveries = await connection
+      .getRepository(Delivery)
+      .createQueryBuilder("delivery")
+      .leftJoinAndSelect("delivery.merchant", "merchant")
+      .leftJoinAndSelect("delivery.deliverer", "deliverer")
+      .leftJoinAndSelect("delivery.addresses", "addresses")
+      .addOrderBy("delivery.id", "DESC")
+      .where("delivery.status = 'new'")
+      .getMany();
+    await connection.close();
+    res.send(deliveries);
+  });
+});
 
+app.get("/accepted-deliveries", (req, res) => {
+  createConnection().then(async (connection) => {
+    const deliveries = await connection
+      .getRepository(Delivery)
+      .createQueryBuilder("delivery")
+      .leftJoinAndSelect("delivery.merchant", "merchant")
+      .leftJoinAndSelect("delivery.deliverer", "deliverer")
+      .leftJoinAndSelect("delivery.addresses", "addresses")
+      .addOrderBy("delivery.id", "DESC")
+      .where("delivery.status = 'accepted' OR delivery.status = 'Dropping Off'")
 
-app.get('/accepted-deliveries', (req, res) => {
-    createConnection().then(async (connection) => {
-        const deliveries =  await connection
-            .getRepository(Delivery)
-            .createQueryBuilder("delivery")
-            .leftJoinAndSelect("delivery.merchant", "merchant")
-            .leftJoinAndSelect("delivery.deliverer", "deliverer")
-            .leftJoinAndSelect("delivery.addresses", "addresses")
-            .addOrderBy("delivery.id", "DESC")
-            .where("delivery.status = 'accepted' OR delivery.status = 'Dropping Off'" )
-            
-            .getMany();
-        await connection.close();
-        res.send(deliveries)
-    }) 
-})
+      .getMany();
+    await connection.close();
+    res.send(deliveries);
+  });
+});
 
+app.post("/create-delivery/:delivererId", (req, res) => {
+  createConnection().then(async (connection) => {
+    const deliverer = await getRepository(Deliverer).findOne(
+      req.params.delivererId
+    );
+    const merchant = await getRepository(Merchant).findOne(1);
 
-
-
-
-app.post('/create-delivery/:delivererId', (req, res) => {
-    createConnection().then(async (connection) => {
-        const deliverer = await getRepository(Deliverer).findOne(req.params.delivererId); 
-        const merchant = await getRepository(Merchant).findOne(1);
-
-        if(deliverer === undefined) {
-            await connection.close();
-            res.send("deliverer not found", 404);
-        } else {
-            const delivery = new Delivery();
-                delivery.deliverer = deliverer;
-                delivery.merchant = merchant;
-                delivery.status = "new";
-                delivery.heart = "like"
-
-                
-            const pickUpAddress = new Address();
-                pickUpAddress.type = req.body.addresses[0].type;
-                pickUpAddress.street = req.body.addresses[0].street;
-                pickUpAddress.zipCode = req.body.addresses[0].zipCode;
-                pickUpAddress.country = req.body.addresses[0].country;
-                pickUpAddress.city =  req.body.addresses[0].city;
-
-            const droppOffAddress = new Address();
-                droppOffAddress.type = req.body.addresses[0].type;
-                droppOffAddress.street = req.body.addresses[0].street;
-                droppOffAddress.zipCode = req.body.addresses[0].zipCode;
-                droppOffAddress.country = req.body.addresses[0].country;
-                droppOffAddress.city =  req.body.addresses[0].city;
-                console.log(req.params)
-
-                delivery.addresses = [pickUpAddress, droppOffAddress];
-            // await connection.manager.save(droppOffAddress);
-            // await connection.manager.save(pickUpAddress);
-            await connection.manager.save(delivery);
-            await connection.close();
-
-            res.send(`New delivery with id ${delivery.id} will be delivered by deliverer ${delivery.deliverer.firstName}`)
-        }
-    })
-})
-
-app.post('/accept-delivery/:deliveryId',(req, res) => {
-    createConnection().then(async (connection) => {
-    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
-    if (delivery  === undefined) {
-        await connection.close();
-        res.send("delivery not found", 404)
+    if (deliverer === undefined) {
+      await connection.close();
+      res.send("deliverer not found", 404);
     } else {
-        await connection.manager.update(Delivery, req.params.deliveryId, {status: "accepted"})
-        await connection.close();
-        delivery.status = "accepted";
-        res.send(delivery)
+      const delivery = new Delivery();
+      delivery.deliverer = deliverer;
+      delivery.merchant = merchant;
+      delivery.status = "new";
+      delivery.heart = "like";
+
+      const pickUpAddress = new Address();
+      pickUpAddress.type = req.body.addresses[0].type;
+      pickUpAddress.street = req.body.addresses[0].street;
+      pickUpAddress.zipCode = req.body.addresses[0].zipCode;
+      pickUpAddress.country = req.body.addresses[0].country;
+      pickUpAddress.city = req.body.addresses[0].city;
+
+      const droppOffAddress = new Address();
+      droppOffAddress.type = req.body.addresses[0].type;
+      droppOffAddress.street = req.body.addresses[0].street;
+      droppOffAddress.zipCode = req.body.addresses[0].zipCode;
+      droppOffAddress.country = req.body.addresses[0].country;
+      droppOffAddress.city = req.body.addresses[0].city;
+      console.log(req.params);
+
+      delivery.addresses = [pickUpAddress, droppOffAddress];
+      // await connection.manager.save(droppOffAddress);
+      // await connection.manager.save(pickUpAddress);
+      await connection.manager.save(delivery);
+      await connection.close();
+
+      res.send(
+        `New delivery with id ${delivery.id} will be delivered by deliverer ${delivery.deliverer.firstName}`
+      );
     }
-    })
+  });
 });
 
-
+app.post("/accept-delivery/:deliveryId", (req, res) => {
+  createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(
+      req.params.delivererId
+    );
+    if (delivery === undefined) {
+      await connection.close();
+      res.send("delivery not found", 404);
+    } else {
+      await connection.manager.update(Delivery, req.params.deliveryId, {
+        status: "accepted",
+      });
+      await connection.close();
+      delivery.status = "accepted";
+      res.send(delivery);
+    }
+  });
+});
 
 // app.post('/new-delivery/:deliveryId',(req, res) => {
 //     createConnection().then(async (connection) => {
@@ -211,64 +204,65 @@ app.post('/accept-delivery/:deliveryId',(req, res) => {
 //     })
 // });
 
-
-app.post('like-deliverer/:deliveryId', (req, res) =>{
-    createConnection().then(async (connection) => {
-        const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
-        if (delivery.heart === "black") {
-            await connection.close();
-            res.send("no like")
-
-        } else {
-            delivery.heart === "liked"
-            await connection.manager.update(Delivery, req.params.deliveryId, {status: "liked"})
-            await connection.close();
-
-            res.send(delivery);
-        }
-    })
-    console.log(res.send('hello'))
-
-})
-
-
-app.post('/confirm-pickup/:deliveryId',(req, res) => {
-    createConnection().then(async (connection) => {
-        const delivery = await getRepository(Delivery).findOne(req.params.deliveryId);
-        if (delivery === undefined) {
-            await connection.close();
-            res.send("delivery not found",404)
-        } else {
-           delivery.status = "in transit";
-           await connection.manager.update(Delivery, req.params.deliveryId, {status: "in transit"})
-           await connection.close();
-           
-           res.send(delivery);
-        } 
-    })
-
-    
-})
-
-app.post('/confirm-dropoff/:deliveryId',(req, res) => {
-    createConnection().then(async (connection) => {
-    const delivery = await getRepository(Delivery).findOne(req.params.delivererId);
-    if (delivery  === undefined) {
-        await connection.close();
-        res.send("delivery not found", 404)
+app.post("like-deliverer/:deliveryId", (req, res) => {
+  createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(
+      req.params.deliveryId
+    );
+    if (delivery.heart === "black") {
+      await connection.close();
+      res.send("no like");
     } else {
-        delivery.status = "done";
-        // res.send(delivery)
-        await connection.manager.update(Delivery, req.params.deliveryId, {status: "done"})
-        await connection.close();
-         res.send(delivery)
+      delivery.heart === "liked";
+      await connection.manager.update(Delivery, req.params.deliveryId, {
+        status: "liked",
+      });
+      await connection.close();
 
+      res.send(delivery);
     }
-    })
+  });
+  console.log(res.send("hello"));
 });
 
+app.post("/confirm-pickup/:deliveryId", (req, res) => {
+  createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(
+      req.params.deliveryId
+    );
+    if (delivery === undefined) {
+      await connection.close();
+      res.send("delivery not found", 404);
+    } else {
+      delivery.status = "in transit";
+      await connection.manager.update(Delivery, req.params.deliveryId, {
+        status: "in transit",
+      });
+      await connection.close();
 
+      res.send(delivery);
+    }
+  });
+});
 
+app.post("/confirm-dropoff/:deliveryId", (req, res) => {
+  createConnection().then(async (connection) => {
+    const delivery = await getRepository(Delivery).findOne(
+      req.params.delivererId
+    );
+    if (delivery === undefined) {
+      await connection.close();
+      res.send("delivery not found", 404);
+    } else {
+      delivery.status = "done";
+      // res.send(delivery)
+      await connection.manager.update(Delivery, req.params.deliveryId, {
+        status: "done",
+      });
+      await connection.close();
+      res.send(delivery);
+    }
+  });
+});
 
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));

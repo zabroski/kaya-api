@@ -6,6 +6,9 @@ import { Address } from "./Address";
 
 @Entity()
 export class Delivery {
+    createQueryBuilder(arg0: string) {
+        throw new Error("Method not implemented.");
+    }
 
     @PrimaryGeneratedColumn()
     id: number;
